@@ -27,13 +27,39 @@ Dự án tạo ra website thương mại điện tử với frontend được x�
 - Redis cache
 - Elasticsearch
 
+## YÊU CẦU
+ - Phiên bản node > 20
+ - Trình cài đặt yarn
+ - Docker: postgre, RabbitMQ, Redis, Elasticsearch
 
 ## CÀI ĐẶT DEPENDENCIES
 
-Install my-project with npm
+Install server with nest js
 
 ```bash
-  npm install my-project
+  yarn nest new my-project
   cd my-project
 ```
+Install prisma
+```bash
+  yarn add prisma @prisma/client
+
+```
+
+## Mô HÌNH ERD
+- file [text](ecommerce.drawio.xml)
+
+## TIẾN TRÌNH
+1. Tạo database
+- Prisma migrate
+```bash
+  yarn prisma init
+```
+- Sửa file .env
+- Cập nhật file schema.prisma: tạo model users, product, store,....
+- Dùng lệnh
+```bash
+  npx prisma migrate dev --name new_database_postgre
+```
+
     
