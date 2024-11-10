@@ -47,7 +47,7 @@ Install prisma
 ```
 
 ## Mô HÌNH ERD
-- file [text](ecommerce.drawio.xml)
+- file [ecommerce.drawio](ecommerce.drawio.xml)
 
 ## TIẾN TRÌNH
 1. Tạo database
@@ -59,7 +59,7 @@ Install prisma
 - Cập nhật file schema.prisma: tạo model users, product, store,....
 - Dùng lệnh
 ```bash
-  npx prisma migrate dev --name new_database_postgre
+  npx prisma migrate dev --name new_database_postgres
 ```
 
     
