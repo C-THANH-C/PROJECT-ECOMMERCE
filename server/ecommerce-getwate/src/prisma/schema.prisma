@@ -22,6 +22,7 @@ model users {
   user_role    Roles          @default(user)
   full_name    String?        @db.VarChar(255)
   user_create  DateTime       @default(now()) @db.Timestamp()
+  user_status  Boolean?       @default(false)
   user_info    user_info[]
   cart         cart[]
   order        order[]
@@ -38,29 +39,30 @@ enum Roles {
 
 model user_info {
   user_id          Int
-  users            users    @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+  users            users     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
   user_image       String[]
-  user_title       String?  @db.VarChar(255)
+  user_title       String?   @db.VarChar(255)
   user_description String?
-  address_id       Int
-  address          address  @relation(fields: [address_id], references: [address_id], onDelete: Cascade, onUpdate: NoAction)
+  address          address[]
 
-  @@id([user_id, address_id])
+  @@id([user_id])
 }
 
 // end 
 
 //create table address
 model address {
-  address_id   Int          @id @default(autoincrement())
-  country      String?      @db.VarChar(255)
-  city         String?      @db.VarChar(255)
-  province     String?      @db.VarChar(255)
-  district     String?      @db.VarChar(255)
-  wards        String?      @db.VarChar(255)
-  full_address String?      @db.VarChar(255)
-  user_info    user_info[]
-  store_info   store_info[]
+  address_id   Int         @id @default(autoincrement())
+  country      String?     @db.VarChar(255)
+  city         String?     @db.VarChar(255)
+  province     String?     @db.VarChar(255)
+  district     String?     @db.VarChar(255)
+  wards        String?     @db.VarChar(255)
+  full_address String?     @db.VarChar(255)
+  user_id      Int?
+  user_info    user_info?  @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+  store_id     Int?
+  store_info   store_info? @relation(fields: [store_id], references: [store_id], onDelete: Cascade, onUpdate: NoAction)
   shipping     shipping[]
 }
 
@@ -78,14 +80,13 @@ model store {
 
 model store_info {
   store_id       Int
-  store          store    @relation(fields: [store_id], references: [store_id], onDelete: Cascade, onUpdate: NoAction)
-  address_id     Int
-  address        address  @relation(fields: [address_id], references: [address_id], onDelete: Cascade, onUpdate: NoAction)
+  store          store     @relation(fields: [store_id], references: [store_id], onDelete: Cascade, onUpdate: NoAction)
   store_image    String[]
   store_star     Int?
-  store_delivery Json?    @db.JsonB
+  store_delivery Json?     @db.JsonB
+  address        address[]
 
-  @@id([store_id, address_id])
+  @@id([store_id])
 }
 
 model store_category {

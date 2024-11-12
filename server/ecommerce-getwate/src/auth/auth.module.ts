@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { JwtModule } from '@nestjs/jwt';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [ClientsModule.register([{
@@ -13,7 +16,32 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         durable: true
       }
     }
-  }])],
-  controllers: [AuthController]
+  }]),
+  JwtModule.register({}),
+  ClientsModule.register([{
+    name: "NOTIFY_NAME",
+    transport: Transport.RMQ,
+    options: {
+      urls: ['amqp://admin:1234@localhost:5672'],
+      queue: "email_queue",
+      queueOptions: {
+        durable: true
+      },
+    }
+  }]),
+  ThrottlerModule.forRoot([{
+    ttl: 60,
+    limit: 5,
+  }
+  ],
+  )
+  ],
+  controllers: [AuthController],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard, // Kích hoạt ThrottlerGuard toàn cục
+    },
+  ],
 })
 export class AuthModule { }

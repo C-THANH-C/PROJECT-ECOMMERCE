@@ -39,3 +39,22 @@ export class Login {
 
 
 }
+export class Update {
+    @IsEmail()
+    @IsString()
+    @IsNotEmpty()
+    email: string
+
+    @IsString()
+    @MaxLength(15)
+    @IsNotEmpty()
+    phone: string
+
+    @IsString()
+    @IsNotEmpty()
+    password: string
+
+    @IsString()
+    @IsNotEmpty()
+    full_name: string
+}

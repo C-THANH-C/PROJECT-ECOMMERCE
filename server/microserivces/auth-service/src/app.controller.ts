@@ -7,11 +7,16 @@ import { ResponseInterceptor } from './config/ResponseInterceptor';
 export class AppController {
   constructor(private readonly appService: AppService) { }
 
-  @UseInterceptors(new ResponseInterceptor('Register success'))
+  @UseInterceptors(new ResponseInterceptor('Send OTP email'))
   @MessagePattern('register')
   register(@Payload() data: any) {
-
     return this.appService.register(data)
+  }
+  @UseInterceptors(new ResponseInterceptor('User register success'))
+  @MessagePattern('verify-email')
+  verifyEmail(@Payload() data) {
+
+    return this.appService.verifyEmail(data)
 
   }
 
@@ -19,6 +24,11 @@ export class AppController {
   @MessagePattern('login')
   login(@Payload() data) {
     return this.appService.login(data)
-
+  }
+  @UseInterceptors(new ResponseInterceptor('Update success'))
+  @MessagePattern('update')
+  update(@Payload() data) {
+    console.log(data)
+    return this.appService.update(data)
   }
 }
