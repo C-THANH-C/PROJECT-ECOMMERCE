@@ -1,4 +1,4 @@
-import { IsEmail, IsEmpty, IsNotEmpty, IsString, Max, MaxLength, ValidateIf } from "class-validator"
+import { IsArray, IsEmail, IsEmpty, IsNotEmpty, IsOptional, IsString, Max, MaxLength, ValidateIf } from "class-validator"
 
 export class Register {
     @IsEmail()
@@ -57,4 +57,16 @@ export class Update {
     @IsString()
     @IsNotEmpty()
     full_name: string
+}
+
+export class info {
+    @MaxLength(255)
+    user_title: string
+
+    user_description: string
+
+    @IsArray()
+    @IsOptional()
+    @IsString({ each: true })
+    user_image: string[]
 }

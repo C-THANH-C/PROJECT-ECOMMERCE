@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,44 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// create table users
-model users {
-  user_id      Int            @id @default(autoincrement())
-  email        String         @unique @db.VarChar(255)
-  phone        String         @unique @db.VarChar(15)
-  password     String         @db.VarChar(255)
-  user_role    Roles          @default(user)
-  full_name    String?        @db.VarChar(255)
-  user_create  DateTime       @default(now()) @db.Timestamp()
-  user_status  Boolean?       @default(false)
-  user_info    user_info[]
-  cart         cart[]
-  order        order[]
-  comment      comment[]
-  comment_list comment_list[]
-  chat         chat[]
-}
-
-enum Roles {
-  admin
-  store
-  user
-}
-
-model user_info {
-  user_id          Int
-  users            users     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
-  user_image       String[]
-  user_title       String?   @db.VarChar(255)
-  user_description String?
-  address          address[]
-
-  @@id([user_id])
-}
-
-// end 
-
-//create table address
 model address {
   address_id   Int         @id @default(autoincrement())
   country      String?     @db.VarChar(255)
@@ -59,113 +15,170 @@ model address {
   district     String?     @db.VarChar(255)
   wards        String?     @db.VarChar(255)
   full_address String?     @db.VarChar(255)
-  user_id      Int?
-  user_info    user_info?  @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
   store_id     Int?
+  user_id      Int?
   store_info   store_info? @relation(fields: [store_id], references: [store_id], onDelete: Cascade, onUpdate: NoAction)
+  user_info    user_info?  @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
   shipping     shipping[]
 }
 
-//end
-
-//create table store
-model store {
-  store_id       Int              @id @default(autoincrement())
-  store_name     String           @unique @db.VarChar(255)
-  store_create   DateTime         @default(now()) @db.Timestamp()
-  store_status   Boolean          @default(false)
-  store_info     store_info[]
-  store_category store_category[]
-}
-
-model store_info {
-  store_id       Int
-  store          store     @relation(fields: [store_id], references: [store_id], onDelete: Cascade, onUpdate: NoAction)
-  store_image    String[]
-  store_star     Int?
-  store_delivery Json?     @db.JsonB
-  address        address[]
-
-  @@id([store_id])
-}
-
-model store_category {
-  store_category_id Int       @id @default(autoincrement())
-  store_id          Int
-  store             store     @relation(fields: [store_id], references: [store_id], onDelete: Cascade, onUpdate: NoAction)
-  category_name     String    @unique @db.VarChar(255)
-  category_create   DateTime  @default(now()) @db.Timestamp()
-  product           product[]
-}
-
-// end
-
-// create table category
-model category {
-  category_id     Int       @id @default(autoincrement())
-  category_name   String    @unique @db.VarChar(255)
-  product         product[]
-  category_create DateTime  @default(now()) @db.Timestamp()
-}
-
-// end 
-
-//create table product 
-model product {
-  product_id          Int             @id @default(autoincrement())
-  store_category_id   Int?
-  store_category      store_category? @relation(fields: [store_category_id], references: [store_category_id], onDelete: Cascade, onUpdate: NoAction)
-  category_id         Int?
-  category            category?       @relation(fields: [category_id], references: [category_id], onDelete: Cascade, onUpdate: NoAction)
-  product_name        String          @unique @db.VarChar(255)
-  product_price       Int
-  product_quantity    Int
-  product_image       String[]
-  product_attribute   Json?           @db.JsonB
-  product_description String?
-  cart_item           cart_item[]
-  product_create      DateTime        @default(now()) @db.Timestamp()
-  comment             comment[]
-  comment_list        comment_list[]
-}
-
-//end
-
-// cart
 model cart {
   cart_id     Int         @id @default(autoincrement())
   user_id     Int
+  cart_create DateTime    @default(now()) @db.Timestamp(6)
   users       users       @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
-  cart_create DateTime    @default(now()) @db.Timestamp()
   cart_item   cart_item[]
   order       order[]
 }
 
 model cart_item {
   cart_id       Int
-  cart          cart     @relation(fields: [cart_id], references: [cart_id], onDelete: Cascade, onUpdate: NoAction)
   product_id    Int
-  product       product  @relation(fields: [product_id], references: [product_id], onDelete: Cascade, onUpdate: NoAction)
   item_price    Int
   item_quantity Int
-  item_create   DateTime @default(now()) @db.Timestamp()
+  item_create   DateTime @default(now()) @db.Timestamp(6)
   item_status   Boolean  @default(false)
+  cart          cart     @relation(fields: [cart_id], references: [cart_id], onDelete: Cascade, onUpdate: NoAction)
+  product       product  @relation(fields: [product_id], references: [product_id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([cart_id, product_id])
 }
 
-//end
+model category {
+  category_id     Int       @id @default(autoincrement())
+  category_name   String    @unique @db.VarChar(255)
+  category_create DateTime  @default(now()) @db.Timestamp(6)
+  product         product[]
+}
 
-//order
+model chat {
+  chat_id     Int      @id @default(autoincrement())
+  user_id     Int
+  content     String
+  room_id     String
+  chat_create DateTime @default(now()) @db.Timestamp(6)
+  users       users    @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model comment {
+  comment_id     Int           @id @default(autoincrement())
+  user_id        Int
+  product_id     Int
+  content        String
+  comment_create DateTime      @default(now()) @db.Timestamp(6)
+  product        product       @relation(fields: [product_id], references: [product_id], onDelete: Cascade, onUpdate: NoAction)
+  users          users         @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+  comment_list   comment_list?
+}
+
+model comment_list {
+  comment_id     Int      @id
+  user_id        Int
+  product_id     Int
+  content        String
+  comment_create DateTime @default(now()) @db.Timestamp(6)
+  comment        comment  @relation(fields: [comment_id], references: [comment_id], onDelete: Cascade, onUpdate: NoAction)
+  product        product  @relation(fields: [product_id], references: [product_id], onDelete: Cascade, onUpdate: NoAction)
+  users          users    @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
 model order {
   order_id     Int        @id @default(autoincrement())
   cart_id      Int
-  cart         cart       @relation(fields: [cart_id], references: [cart_id], onDelete: Cascade, onUpdate: NoAction)
   user_id      Int
-  users        users      @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
   order_status status     @default(processing)
-  order_create DateTime   @default(now()) @db.Timestamp()
+  order_create DateTime   @default(now()) @db.Timestamp(6)
+  cart         cart       @relation(fields: [cart_id], references: [cart_id], onDelete: Cascade, onUpdate: NoAction)
+  users        users      @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
   shipping     shipping[]
+}
+
+model product {
+  product_id          Int             @id @default(autoincrement())
+  store_category_id   Int?
+  category_id         Int?
+  product_name        String          @unique @db.VarChar(255)
+  product_price       Int
+  product_quantity    Int
+  product_image       String[]
+  product_attribute   Json?
+  product_description String?
+  product_create      DateTime        @default(now()) @db.Timestamp(6)
+  cart_item           cart_item[]
+  comment             comment[]
+  comment_list        comment_list[]
+  category            category?       @relation(fields: [category_id], references: [category_id], onDelete: Cascade, onUpdate: NoAction)
+  store_category      store_category? @relation(fields: [store_category_id], references: [store_category_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model shipping {
+  ship_id     Int      @id @default(autoincrement())
+  order_id    Int
+  full_name   String
+  phone       String   @db.VarChar(15)
+  address_id  Int
+  ship_create DateTime @default(now()) @db.Timestamp(6)
+  address     address  @relation(fields: [address_id], references: [address_id], onDelete: Cascade, onUpdate: NoAction)
+  order       order    @relation(fields: [order_id], references: [order_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model store {
+  store_id       Int              @id @default(autoincrement())
+  store_name     String           @unique @db.VarChar(255)
+  store_create   DateTime         @default(now()) @db.Timestamp(6)
+  store_status   Boolean          @default(false)
+  store_category store_category[]
+  store_info     store_info?
+}
+
+model store_category {
+  store_category_id Int       @id @default(autoincrement())
+  store_id          Int
+  category_name     String    @unique @db.VarChar(255)
+  category_create   DateTime  @default(now()) @db.Timestamp(6)
+  product           product[]
+  store             store     @relation(fields: [store_id], references: [store_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model store_info {
+  store_id       Int       @id
+  store_image    String[]
+  store_star     Int?
+  store_delivery Json?
+  address        address[]
+  store          store     @relation(fields: [store_id], references: [store_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model user_info {
+  user_id          Int       @id
+  user_image       String[]
+  user_title       String?   @db.VarChar(255)
+  user_description String?
+  address          address[]
+  users            users     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model users {
+  user_id      Int            @id @default(autoincrement())
+  email        String         @unique @db.VarChar(255)
+  phone        String         @unique @db.VarChar(15)
+  password     String         @db.VarChar(255)
+  user_role    Roles          @default(user)
+  full_name    String?        @db.VarChar(255)
+  user_create  DateTime       @default(now()) @db.Timestamp(6)
+  user_status  Boolean?       @default(false)
+  cart         cart[]
+  chat         chat[]
+  comment      comment[]
+  comment_list comment_list[]
+  order        order[]
+  user_info    user_info?
+}
+
+enum Roles {
+  admin
+  store
+  user
 }
 
 enum status {
@@ -174,57 +187,4 @@ enum status {
   delivered
   received
   cancelled
-}
-
-//end
-
-// create table shipping
-model shipping {
-  ship_id     Int      @id @default(autoincrement())
-  order_id    Int
-  order       order    @relation(fields: [order_id], references: [order_id], onDelete: Cascade, onUpdate: NoAction)
-  full_name   String
-  phone       String   @db.VarChar(15)
-  address_id  Int
-  address     address  @relation(fields: [address_id], references: [address_id], onDelete: Cascade, onUpdate: NoAction)
-  ship_create DateTime @default(now()) @db.Timestamp()
-}
-
-//end
-
-// create table comment
-model comment {
-  comment_id     Int            @id @default(autoincrement())
-  user_id        Int
-  users          users          @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
-  product_id     Int
-  product        product        @relation(fields: [product_id], references: [product_id], onDelete: Cascade, onUpdate: NoAction)
-  content        String
-  comment_create DateTime       @default(now()) @db.Timestamp()
-  comment_list   comment_list[]
-}
-
-model comment_list {
-  comment_id     Int
-  comment        comment  @relation(fields: [comment_id], references: [comment_id], onDelete: Cascade, onUpdate: NoAction)
-  user_id        Int
-  users          users    @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
-  product_id     Int
-  product        product  @relation(fields: [product_id], references: [product_id], onDelete: Cascade, onUpdate: NoAction)
-  content        String
-  comment_create DateTime @default(now()) @db.Timestamp()
-
-  @@id([comment_id])
-}
-
-//end
-
-// create table chat
-model chat {
-  chat_id     Int      @id @default(autoincrement())
-  user_id     Int
-  users       users    @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
-  content     String
-  room_id     String
-  chat_create DateTime @default(now()) @db.Timestamp(6)
 }

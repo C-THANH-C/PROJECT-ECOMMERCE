@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { AuthController } from './auth.controller';
+
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { JwtModule } from '@nestjs/jwt';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { AuthController } from './auth.controller';
 
 @Module({
   imports: [ClientsModule.register([{

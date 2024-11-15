@@ -27,6 +27,7 @@ const sendVerificationEmail = async (email, otpCache) => {
             html: `<p>Please verify your email by OTP: ${otpCache}</p>`,
         };
         await transporter.sendMail(mailOptions);
+        return { status: 'success', message: 'Email sent successfully' };
     } catch (error) {
         console.error('Error sending email:', error);
     }
@@ -50,8 +51,9 @@ const listenQueue = async () => {
 
                 // Gọi hàm sendVerificationEmail để gửi email
                 await sendVerificationEmail(email, otpCache);
-
-
+                channel.sendToQueue(replyTo || responseQueue, Buffer.from(responseMessage), {
+                    correlationId,
+                });
                 channel.ack(msg); // Xác nhận đã xử lý thông điệp
             }
         });
