@@ -6,8 +6,6 @@ import { JwtService } from '@nestjs/jwt';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { ClientProxy } from '@nestjs/microservices';
 import * as randomstring from 'randomstring'
-import * as fs from 'fs';
-import * as path from 'path'
 @Injectable()
 export class AppService {
   constructor(private prisma: PrismaService,
@@ -99,7 +97,6 @@ export class AppService {
       }
     })
     let checkResult = data.email ? "Email" : "Phone"
-
     if (checkUser) {
       if (bcrypt.compareSync(data.password, checkUser.password)) {
         let access_token = await this.jwtService.sign({ user_id: checkUser.user_id, user_role: checkUser.user_role },
@@ -140,7 +137,6 @@ export class AppService {
       },
 
     })
-
     if (checkBody.length > 0) {
       const existingUser = checkBody[0];
       let checkResult = existingUser.email === body.email ? "Email" : "Phone"
@@ -190,7 +186,6 @@ export class AppService {
       }
     })
     if (!checkUser) throw new HttpException("User can not found", HttpStatus.NOT_FOUND)
-
     let newInfo = {
       ...body,
       user_id,
@@ -211,5 +206,17 @@ export class AppService {
     return {
       ...user
     }
+  }
+
+
+  async createAddress(data) {
+    let { user_id, body } = data
+    let address = await this.prisma.address.create({
+      data: {
+        ...body,
+        user_id
+      }
+    })
+    return address
   }
 }

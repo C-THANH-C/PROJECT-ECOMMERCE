@@ -42,16 +42,13 @@ const listenQueue = async () => {
         await channel.assertQueue(queue, { durable: true });
         // Lắng nghe yêu cầu từ hàng đợi
         channel.consume(queue, async (msg) => {
-
             if (msg !== null && msg.fields.routingKey == "email_queue") {
-
                 const { data } = await JSON.parse(msg.content.toString());
-                const { email, otpCache } = await data
-                console.log(email, otpCache);
-
+                const { email, otp } = await data
+                console.log(email, otp);
                 // Gọi hàm sendVerificationEmail để gửi email
-                await sendVerificationEmail(email, otpCache);
-                channel.sendToQueue(replyTo || responseQueue, Buffer.from(responseMessage), {
+                await sendVerificationEmail(email, otp);
+                channel.sendToQueue(responseQueue, Buffer.from(responseMessage), {
                     correlationId,
                 });
                 channel.ack(msg); // Xác nhận đã xử lý thông điệp

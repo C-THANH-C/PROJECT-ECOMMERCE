@@ -2,8 +2,7 @@ import { Controller, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { ResponseInterceptor } from './config/ResponseInterceptor';
-import { FilesInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
+
 
 @Controller()
 export class AppController {
@@ -34,5 +33,11 @@ export class AppController {
   @MessagePattern('user-info')
   async info(@Payload() data) {
     return this.appService.info(data)
+  }
+
+  @UseInterceptors(new ResponseInterceptor("Create address success"))
+  @MessagePattern('address')
+  createAddress(@Payload() data: JSON) {
+    return this.appService.createAddress(data)
   }
 }

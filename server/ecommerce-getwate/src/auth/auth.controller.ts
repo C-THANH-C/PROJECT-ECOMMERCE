@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Inject, UseGuards, Request, UseInterceptors, UploadedFiles } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { info, Login, Register, Update } from './dto';
+import { address, info, Login, Register, Update } from './dto';
 import { catchError, lastValueFrom, of, retry, timeout } from 'rxjs';
 import { AuthGuard } from 'src/AuthGuard/auth.guard';
 import { error } from 'console';
@@ -15,7 +15,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class AuthController {
   constructor(
     @Inject("AUTH_NAME") private Auth: ClientProxy,
-    @Inject("NOTIFY_NAME") private Notify: ClientProxy,
     private prisma: PrismaService
   ) { }
 
@@ -80,7 +79,6 @@ export class AuthController {
   async info(@Body() body: any, @UploadedFiles() files: Array<Express.Multer.File>, @Request() req) {
     const user_id = req.user.user_id;
     const uploadedFiles = files || [];
-
     // Lấy thông tin người dùng từ cơ sở dữ liệu
     const checkUser = await this.prisma.user_info.findFirst({
       where: { user_id },
@@ -124,5 +122,15 @@ export class AuthController {
       .then(result => result)
       .catch(error => error.error);
     return userInfo;
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('/create-address')
+  async createAddress(@Body() body: address, @Request() res) {
+    let user_id = res.user.user_id
+    const address = await lastValueFrom(this.Auth.send("address", { body, user_id }))
+      .then(result => result)
+      .catch(error => error.error)
+    return address
   }
 }

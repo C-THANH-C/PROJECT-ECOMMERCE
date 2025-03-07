@@ -62,11 +62,18 @@ export class Update {
 export class info {
     @MaxLength(255)
     user_title: string
-
     user_description: string
-
     @IsArray()
     @IsOptional()
     @IsString({ each: true })
     user_image: string[]
+}
+
+export class address {
+    country: string
+    city: string
+    province: string
+    district: string
+    full_address: string
+    wards: string
 }
